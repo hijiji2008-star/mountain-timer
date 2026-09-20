@@ -257,10 +257,10 @@
 <div id="timeDisplay">00:00</div>
 
 <div class="presets">
-  <button class="preset-btn" data-min="5"  data-sec="0">5分</button>
   <button class="preset-btn" data-min="10" data-sec="0">10分</button>
   <button class="preset-btn" data-min="15" data-sec="0">15分</button>
   <button class="preset-btn" data-min="20" data-sec="0">20分</button>
+  <button class="preset-btn" data-min="30" data-sec="0">30分</button>
 </div>
 
 <div class="controls">
@@ -325,7 +325,7 @@ const crowEls    = [
     const opt = document.createElement('option');
     opt.value = i;
     opt.textContent = i + '分';
-    if (i === 5) opt.selected = true;
+    if (i === 10) opt.selected = true;
     minSel.appendChild(opt);
   }
 })();
@@ -639,8 +639,8 @@ secSel.addEventListener('change', () => {
 
 createRain();
 animateRain();
-document.querySelector('.preset-btn[data-min="5"]').classList.add('active');
-minSel.value = '5';
+document.querySelector('.preset-btn[data-min="10"]').classList.add('active');
+minSel.value = '10';
 initTimer();
 </script>
 </body>
