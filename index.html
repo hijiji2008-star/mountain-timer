@@ -227,6 +227,27 @@
       <feGaussianBlur stdDeviation="3" result="b"/>
       <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
+    <!-- 版画の彫り跡（陰の面に敷く斜線） -->
+    <pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(38)">
+      <line x1="0" y1="0" x2="0" y2="6" stroke="#0b0703" stroke-width="1.5" opacity="0.5"/>
+    </pattern>
+    <pattern id="hatchScree" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(-22)">
+      <line x1="0" y1="0" x2="0" y2="7" stroke="#0b0703" stroke-width="1.1" opacity="0.45"/>
+    </pattern>
+    <!-- 彫りは稜線側を濃く、麓へ抜く -->
+    <linearGradient id="shadeFadeGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%"   stop-color="#000000"/>
+      <stop offset="42%"  stop-color="#6b6b6b"/>
+      <stop offset="100%" stop-color="#ffffff"/>
+    </linearGradient>
+    <mask id="shadeFade"><rect width="480" height="300" fill="url(#shadeFadeGrad)"/></mask>
+    <linearGradient id="screeFadeGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"   stop-color="#000000"/>
+      <stop offset="58%"  stop-color="#000000"/>
+      <stop offset="100%" stop-color="#b4b4b4"/>
+    </linearGradient>
+    <mask id="screeFade"><rect width="480" height="300" fill="url(#screeFadeGrad)"/></mask>
+    <clipPath id="mtClip"><path id="mtClipPath" d=""/></clipPath>
   </defs>
 
   <!-- 空 -->
@@ -262,69 +283,26 @@
   <!-- 雨粒レイヤー（JS生成） -->
   <g id="rainLayer"></g>
 
-  <!-- 遠景の山 -->
-  <polygon points="0,230 110,95 220,230"  fill="#1a2a3a" opacity="0.7"/>
-  <polygon points="260,230 380,80 500,230" fill="#152030" opacity="0.7"/>
+  <!-- 遠景の山（稜線を荒らして生成） -->
+  <g id="farMts"></g>
 
-  <!-- メイン山 -->
-  <polygon points="30,270 240,30 450,270" fill="url(#mtMainGrad)"/>
-  <polygon points="30,270 240,30 240,270" fill="#000" opacity="0.1"/>
+  <!-- メイン山（稜線 RIDGE から生成。登山道と歩行位置も同じ配列が出典） -->
+  <path id="mtMain" d="" fill="#412f1e"/>
+  <g clip-path="url(#mtClip)">
+    <path id="mtShade"      d="" fill="#231a0f" opacity="0.85"/>
+    <path id="mtShadeHatch" d="" fill="url(#hatch)" mask="url(#shadeFade)"/>
+    <path id="mtScree"      d="" fill="url(#hatchScree)" opacity="0.5" mask="url(#screeFade)"/>
+    <g id="mtOutcrops"></g>
+    <g id="mtStrata" fill="none" stroke="#6d5335" stroke-width="1" stroke-linecap="round" opacity="0.4"></g>
+    <path id="mtGully" d="" fill="none" stroke="#1a1208" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/>
+  </g>
+  <path id="mtRidgeLine" d="" fill="none" stroke="#7a5c39" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round" opacity="0.7"/>
 
-  <!-- 斜面の林（手前ほど大きく濃い） -->
-  <g id="mtTrees" opacity="0.92">
-    <g fill="#0f2d0c" opacity="0.85">
-      <polygon points="108,198 100,222 116,222"/>
-      <polygon points="152,162 144,186 160,186"/>
-      <polygon points="318,118 310,142 326,142"/>
-      <polygon points="362,152 354,176 370,176"/>
-    </g>
-    <g fill="#143214">
-      <polygon points="92,218 84,242 100,242"/>
-      <polygon points="124,188 116,212 132,212"/>
-      <polygon points="178,128 170,152 186,152"/>
-      <polygon points="198,108 192,128 204,128"/>
-      <polygon points="286,88 280,108 292,108"/>
-      <polygon points="306,108 300,128 312,128"/>
-      <polygon points="338,138 330,162 346,162"/>
-      <polygon points="378,168 370,192 386,192"/>
-      <polygon points="408,198 400,222 416,222"/>
-    </g>
-    <g fill="#1a3a18">
-      <polygon points="76,232 68,254 84,254"/>
-      <polygon points="112,208 104,232 120,232"/>
-      <polygon points="142,176 134,200 150,200"/>
-      <polygon points="164,150 156,174 172,174"/>
-      <polygon points="188,122 180,146 196,146"/>
-      <polygon points="212,98 206,118 218,118"/>
-      <polygon points="268,78 262,98 274,98"/>
-      <polygon points="292,94 284,118 300,118"/>
-      <polygon points="324,124 316,148 332,148"/>
-      <polygon points="348,148 340,172 356,172"/>
-      <polygon points="388,188 380,212 396,212"/>
-      <polygon points="418,212 410,236 426,236"/>
-    </g>
-    <g fill="#1e4416">
-      <polygon points="52,246 60,220 68,246"/>
-      <polygon points="96,244 104,222 112,244"/>
-      <polygon points="130,236 138,210 146,236"/>
-      <polygon points="226,88 232,66 238,88"/>
-      <polygon points="248,82 254,62 260,82"/>
-      <polygon points="368,244 376,222 384,244"/>
-      <polygon points="404,236 412,212 420,236"/>
-    </g>
-  </g>
+  <!-- 斜面の林（種付き乱数で高さ・傾き・枝の出方を振る） -->
+  <g id="mtTrees"></g>
 
-  <!-- 木々（麓・手前） -->
-  <g fill="#1e4416">
-    <polygon points="42,252 54,226 66,252"/>
-    <polygon points="60,256 74,228 88,256"/>
-    <polygon points="78,254 92,230 106,254"/>
-  </g>
-  <g fill="#1e4416">
-    <polygon points="374,252 386,226 398,252"/>
-    <polygon points="392,256 406,228 420,256"/>
-    <polygon points="410,254 424,230 438,254"/>
-  </g>
+  <!-- 麓・手前の木立 -->
+  <g id="foreTrees"></g>
 
   <!-- 夕景のカラス（進捗約90%以降・JSで移動） -->
   <g id="crowsGroup" opacity="0" pointer-events="none">
@@ -345,34 +323,45 @@
     </g>
   </g>
 
-  <!-- 地面 -->
-  <rect x="0" y="266" width="480" height="34" fill="#0f1f0a"/>
-  <rect x="0" y="274" width="480" height="26" fill="#0a160a"/>
+  <!-- 地面（縁を不揃いに） -->
+  <path id="groundA" d="" fill="#13230f"/>
+  <path id="groundB" d="" fill="#0a150a"/>
+
+  <!-- 沢（麓を横切る流れ。雨の間は濁り、晴れると空を映す） -->
+  <g id="river">
+    <path id="riverBody" fill="none" stroke="#3c4034" stroke-width="9" stroke-linecap="round"
+          d="M -6,282 C 54,273 92,289 148,284 C 210,278 248,291 310,285 C 368,279 414,290 486,281"/>
+    <path class="riverGlint" fill="none" stroke="#8d9a84" stroke-width="1.3" stroke-linecap="round" opacity="0.3"
+          d="M 22,280 C 68,274 100,287 142,282"/>
+    <path class="riverGlint" fill="none" stroke="#8d9a84" stroke-width="1.1" stroke-linecap="round" opacity="0.3"
+          d="M 232,286 C 282,281 314,289 354,284"/>
+  </g>
 
   <!-- 足跡 -->
-  <polyline id="trail" points="" fill="none" stroke="#f59e0b"
-            stroke-width="1.5" stroke-dasharray="4 5" opacity="0.6"/>
+  <polyline id="trail" points="" fill="none" stroke="#d99a2c"
+            stroke-width="1.5" stroke-dasharray="4 5" opacity="0.65"/>
 
   <!-- 頂上フラグ -->
   <line x1="240" y1="30" x2="240" y2="10" stroke="#cbd5e1" stroke-width="1.8"/>
   <polygon points="240,10 257,18 240,26" fill="#ef4444"/>
 
-  <!-- ハイカー -->
+  <!-- ハイカー（切り絵のシルエット。腕脚の id と支点は据え置き＝揺れのロジックは不変） -->
   <g id="hiker" transform="translate(30,265)">
-    <ellipse id="hHatBrim" cx="0" cy="-30" rx="6"  ry="2.5" fill="#92400e"/>
-    <rect    id="hHatTop"  x="-4" y="-36" width="8" height="7" rx="2" fill="#b45309"/>
-    <circle  id="hHead"    cy="-25" r="5" fill="#fcd34d"/>
-    <line id="hBody"  x1="0"  y1="-20" x2="0"  y2="-9"  stroke="#3b82f6" stroke-width="3"   stroke-linecap="round"/>
-    <line id="hArmL"  x1="-2" y1="-17" x2="-7" y2="-11" stroke="#3b82f6" stroke-width="2"   stroke-linecap="round"/>
-    <line id="hArmR"  x1="2"  y1="-17" x2="7"  y2="-11" stroke="#3b82f6" stroke-width="2"   stroke-linecap="round"/>
-    <line id="hLegL"  x1="-2" y1="-9"  x2="-5" y2="0"   stroke="#1e3a5f" stroke-width="2"   stroke-linecap="round"/>
-    <line id="hLegR"  x1="2"  y1="-9"  x2="5"  y2="0"   stroke="#1e3a5f" stroke-width="2"   stroke-linecap="round"/>
-    <line id="hStick" x1="8"  y1="-15" x2="13" y2="2"   stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round"/>
+    <path id="hPack" d="M -3.2,-21.5 q -7.4,1.2 -7.4,6.3 q 0,4.8 6,4.8 l 4.6,0 z" fill="#a8501d"/>
+    <path d="M -9.6,-16.8 l 6.2,0.4" stroke="#6f3411" stroke-width="1" fill="none"/>
+    <line id="hLegL" x1="-2" y1="-9"  x2="-5" y2="0"   stroke="#100d07" stroke-width="2.7" stroke-linecap="round"/>
+    <line id="hLegR" x1="2"  y1="-9"  x2="5"  y2="0"   stroke="#100d07" stroke-width="2.7" stroke-linecap="round"/>
+    <line id="hArmL" x1="-2" y1="-17" x2="-7" y2="-11" stroke="#16120a" stroke-width="2.2" stroke-linecap="round"/>
+    <line id="hArmR" x1="2"  y1="-17" x2="7"  y2="-11" stroke="#16120a" stroke-width="2.2" stroke-linecap="round"/>
+    <path id="hBody" d="M -3.6,-20.8 q 3.6,-1.7 7.2,0 l 1,11.2 q -4.8,1.5 -9.4,0 z" fill="#181308"/>
+    <circle id="hHead" cy="-25.2" r="3.9" fill="#d9c7a2"/>
+    <path id="hHat" d="M -7.6,-27.4 q 7.6,-2.4 15.2,0 q -2.2,-1.1 -3.8,-1.4 q -1.1,-4.4 -4.6,-4.4 q -3.4,0 -4.4,4.4 q -1.6,0.3 -2.4,1.4 z" fill="#2c2112"/>
+    <line id="hStick" x1="7.6" y1="-14" x2="12.6" y2="2" stroke="#8a7550" stroke-width="1.4" stroke-linecap="round"/>
   </g>
 
   <!-- 進捗バー（SVG内下部） -->
-  <rect x="48" y="288" width="384" height="4" rx="2" fill="#1e293b"/>
-  <rect id="svgProgress" x="48" y="288" width="0" height="4" rx="2" fill="#f59e0b"/>
+  <rect x="48" y="288" width="384" height="4" rx="2" fill="#0e1509"/>
+  <rect id="svgProgress" x="48" y="288" width="0" height="4" rx="2" fill="#d99a2c"/>
 </svg>
 </figure>
 
@@ -401,9 +390,19 @@
 </div>
 
 <script>
-const START = { x: 30,  y: 265 };
-const PEAK  = { x: 240, y: 30  };
-const END   = { x: 450, y: 265 };
+const SVG_NS    = 'http://www.w3.org/2000/svg';
+const GROUND_Y  = 266;
+
+/* 稜線 — 山の形・登山道・歩く位置すべての出典。
+   偽ピーク(198,112)と鞍部を挟み、登りきったと思ってまだ先がある形にしてある。 */
+const RIDGE_BASE = [
+  [30,266],[46,254],[62,249],[78,231],[92,236],[108,215],[124,207],
+  [138,185],[154,176],[170,150],[186,138],[198,112],[208,124],
+  [220,86],[230,62],[240,30],
+  [252,48],[262,74],[274,84],[286,72],[298,104],[312,118],[326,112],
+  [338,146],[352,158],[366,150],[378,186],[392,198],[406,192],
+  [418,222],[432,240],[450,266]
+];
 const RAIN_MAX = 140;
 
 let totalSeconds = 300;
@@ -424,6 +423,8 @@ const secSel       = document.getElementById('secSel');
 const svgProgress  = document.getElementById('svgProgress');
 const hikerEl      = document.getElementById('hiker');
 const trailEl      = document.getElementById('trail');
+const riverBody    = document.getElementById('riverBody');
+const riverGlints  = Array.from(document.querySelectorAll('.riverGlint'));
 const rainLayer    = document.getElementById('rainLayer');
 const rainClouds   = document.getElementById('rainClouds');
 const rainbowGroup = document.getElementById('rainbowGroup');
@@ -456,6 +457,231 @@ const crowEls    = [
 })();
 
 function lerp(a, b, t) { return a + (b - a) * t; }
+
+/* ── 稜線と地形の生成 ───────────────────────────────── */
+
+// 種付き乱数。毎回同じ山が出るように固定する
+function mulberry32(a) {
+  return function () {
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    let t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+
+// 中点変位で直線を荒らす。彫刻刀の跡のような不揃いさを出す
+function roughen(pts, amp, passes, rnd) {
+  let out = pts;
+  for (let pass = 0; pass < passes; pass++) {
+    const next = [out[0]];
+    for (let i = 0; i < out.length - 1; i++) {
+      const [x0, y0] = out[i], [x1, y1] = out[i + 1];
+      const dx = x1 - x0, dy = y1 - y0;
+      const len = Math.hypot(dx, dy) || 1;
+      const d = (rnd() - 0.5) * 2 * amp;
+      const mx = clamp((x0 + x1) / 2 - dy / len * d, Math.min(x0, x1) + 1, Math.max(x0, x1) - 1);
+      const my = (y0 + y1) / 2 + dx / len * d;
+      next.push([mx, my], [x1, y1]);
+    }
+    out = next;
+    amp *= 0.55;
+  }
+  return out;
+}
+
+const RIDGE  = roughen(RIDGE_BASE, 3.2, 2, mulberry32(20260921));
+const PEAK_I = RIDGE.reduce((best, pt, i, arr) => (pt[1] < arr[best][1] ? i : best), 0);
+const PEAK_X = RIDGE[PEAK_I][0];
+
+function cumLengths(pts) {
+  const cum = [0];
+  for (let i = 1; i < pts.length; i++) {
+    cum.push(cum[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
+  }
+  return cum;
+}
+
+const ASCENT   = RIDGE.slice(0, PEAK_I + 1);
+const DESCENT  = RIDGE.slice(PEAK_I);
+const ASC_CUM  = cumLengths(ASCENT);
+const DESC_CUM = cumLengths(DESCENT);
+
+// 折れ線を距離でたどる（等速で稜線を歩く）
+function walkAlong(pts, cum, dist) {
+  const d = clamp(dist, 0, cum[cum.length - 1]);
+  let i = 1;
+  while (i < cum.length - 1 && cum[i] < d) i++;
+  const span = cum[i] - cum[i - 1] || 1;
+  const t = (d - cum[i - 1]) / span;
+  return { x: lerp(pts[i - 1][0], pts[i][0], t), y: lerp(pts[i - 1][1], pts[i][1], t) };
+}
+
+function ridgeYAt(x) {
+  for (let i = 1; i < RIDGE.length; i++) {
+    if (x <= RIDGE[i][0]) {
+      const [x0, y0] = RIDGE[i - 1], [x1, y1] = RIDGE[i];
+      return lerp(y0, y1, (x - x0) / ((x1 - x0) || 1));
+    }
+  }
+  return GROUND_Y;
+}
+
+function ptsToPath(pts) {
+  return 'M ' + pts.map(pt => pt[0].toFixed(1) + ',' + pt[1].toFixed(1)).join(' L ');
+}
+
+// 針葉樹。枝が段ごとに不揃いに張り出す輪郭を作る
+function coniferPath(h, w, rnd) {
+  const tiers = 3 + Math.floor(rnd() * 2);
+  const left = [], right = [];
+  for (let i = 0; i < tiers; i++) {
+    const f  = i / tiers;
+    const yO = -h * f;
+    const yI = -h * (f + 1 / tiers) + h * 0.05;
+    const wo = w * (1 - f) * (0.8 + rnd() * 0.45);
+    const wi = wo * (0.28 + rnd() * 0.22);
+    left.push([-wo, yO], [-wi, yI]);
+    right.push([wo * (0.85 + rnd() * 0.3), yO], [wi, yI]);
+  }
+  const apex = [(rnd() - 0.5) * w * 0.35, -h];
+  const outline = [[-w * 0.2, 0]].concat(left, [apex], right.reverse(), [[w * 0.2, 0]]);
+  return ptsToPath(outline) + ' Z';
+}
+
+function addTree(parent, x, baseY, h, w, fill, opacity, rnd) {
+  const lean = (rnd() - 0.5) * 7;
+  const g = document.createElementNS(SVG_NS, 'g');
+  g.setAttribute('transform', 'translate(' + x.toFixed(1) + ',' + baseY.toFixed(1) + ') rotate(' + lean.toFixed(1) + ')');
+  const path = document.createElementNS(SVG_NS, 'path');
+  path.setAttribute('d', coniferPath(h, w, rnd));
+  path.setAttribute('fill', fill);
+  if (opacity < 1) path.setAttribute('opacity', String(opacity));
+  g.appendChild(path);
+  parent.appendChild(g);
+}
+
+const TREE_BANDS = [
+  { fill: '#0f1f0c', opacity: 0.9, off: [6, 30],   h: [6, 11],  w: [3, 4.6], step: [7, 12],  treeline: 88 },
+  { fill: '#162d11', opacity: 1,   off: [28, 70],  h: [9, 15],  w: [4, 6],   step: [8, 14],  treeline: 106 },
+  { fill: '#1c3a15', opacity: 1,   off: [66, 126], h: [12, 20], w: [5, 8],   step: [10, 17], treeline: 132 }
+];
+
+function buildScene() {
+  const rnd = mulberry32(7731);
+  const pick = (r) => r[0] + rnd() * (r[1] - r[0]);
+
+  // 遠景の山（稜線を強めに荒らし、霞ませて奥行きを出す）
+  const far = document.getElementById('farMts');
+  [
+    { pts: [[-20,236],[38,182],[84,144],[118,96],[152,134],[198,178],[244,236]], fill: '#1a2731', opacity: 0.8 },
+    { pts: [[246,236],[298,192],[342,152],[382,88],[418,142],[454,184],[500,236]], fill: '#15202a', opacity: 0.9 }
+  ].forEach(m => {
+    const path = document.createElementNS(SVG_NS, 'path');
+    path.setAttribute('d', ptsToPath(roughen(m.pts, 5.5, 2, rnd)) + ' L 500,' + (GROUND_Y + 8) + ' L -20,' + (GROUND_Y + 8) + ' Z');
+    path.setAttribute('fill', m.fill);
+    path.setAttribute('opacity', String(m.opacity));
+    far.appendChild(path);
+  });
+
+  // 主山
+  const skirt = ' L ' + RIDGE[RIDGE.length - 1][0] + ',' + (GROUND_Y + 8) + ' L ' + RIDGE[0][0] + ',' + (GROUND_Y + 8) + ' Z';
+  document.getElementById('mtMain').setAttribute('d', ptsToPath(RIDGE) + skirt);
+  document.getElementById('mtClipPath').setAttribute('d', ptsToPath(RIDGE) + skirt);
+  document.getElementById('mtRidgeLine').setAttribute('d', ptsToPath(RIDGE));
+  document.getElementById('mtScree').setAttribute('d', ptsToPath(RIDGE) + skirt);
+
+  // 西面の陰。境界は山頂から落ちる尾根の枝に沿わせる（垂直に切ると継ぎ目に見える）
+  const spur = [];
+  for (let t = 0; t <= 1.0001; t += 0.1) {
+    spur.push([
+      lerp(PEAK_X, 200, t) + Math.sin(t * 4.1) * 11 - t * 6,
+      lerp(RIDGE[PEAK_I][1], GROUND_Y + 8, t)
+    ]);
+  }
+  const shade = ptsToPath(ASCENT) + ' L ' +
+    roughen(spur, 4.2, 2, rnd).map(pt => pt[0].toFixed(1) + ',' + pt[1].toFixed(1)).join(' L ') +
+    ' L ' + RIDGE[0][0] + ',' + (GROUND_Y + 8) + ' Z';
+  document.getElementById('mtShade').setAttribute('d', shade);
+  document.getElementById('mtShadeHatch').setAttribute('d', shade);
+
+  // 岩の段
+  const strata = document.getElementById('mtStrata');
+  for (let i = 0; i < 15; i++) {
+    const x = PEAK_X - 30 + rnd() * 210;          // 陽の当たる東面に寄せる
+    const y = ridgeYAt(x) + 10 + rnd() * 108;
+    if (y > GROUND_Y - 10) continue;
+    const w = 12 + rnd() * 24;
+    const dip = (rnd() - 0.5) * 8;
+    const path = document.createElementNS(SVG_NS, 'path');
+    path.setAttribute('d', 'M ' + x.toFixed(1) + ',' + y.toFixed(1) +
+      ' q ' + (w / 2).toFixed(1) + ',' + dip.toFixed(1) + ' ' + w.toFixed(1) + ',' + (dip * 0.35).toFixed(1));
+    strata.appendChild(path);
+  }
+
+  // 露岩（陽の当たる面が平らに見えないように割る）
+  const outcrops = document.getElementById('mtOutcrops');
+  for (let i = 0; i < 7; i++) {
+    const x = PEAK_X - 40 + rnd() * 200;
+    const y = ridgeYAt(x) + 14 + rnd() * 66;
+    if (y > GROUND_Y - 26) continue;
+    const w = 11 + rnd() * 19, h = 6 + rnd() * 9;
+    const rock = roughen([[-w / 2, h * 0.5], [-w * 0.34, -h * 0.5], [w * 0.1, -h], [w * 0.46, -h * 0.2], [w / 2, h * 0.55]], 1.6, 1, rnd);
+    const at = 'translate(' + x.toFixed(1) + ',' + y.toFixed(1) + ')';
+    const face = document.createElementNS(SVG_NS, 'path');
+    face.setAttribute('d', ptsToPath(rock) + ' Z');
+    face.setAttribute('transform', at);
+    face.setAttribute('fill', '#2e2114');
+    face.setAttribute('opacity', '0.5');
+    const lip = document.createElementNS(SVG_NS, 'path');
+    lip.setAttribute('d', ptsToPath(rock.slice(1, Math.max(2, Math.floor(rock.length * 0.62)))));
+    lip.setAttribute('transform', at);
+    lip.setAttribute('fill', 'none');
+    lip.setAttribute('stroke', '#836547');
+    lip.setAttribute('stroke-width', '0.9');
+    lip.setAttribute('stroke-linecap', 'round');
+    lip.setAttribute('opacity', '0.55');
+    outcrops.appendChild(face);
+    outcrops.appendChild(lip);
+  }
+
+  // 沢筋（頂上直下から麓へ一本）
+  const gully = [];
+  for (let t = 0; t <= 0.62; t += 0.06) {
+    gully.push([
+      lerp(PEAK_X + 10, 344, t) + Math.sin(t * 8.5) * 6,
+      lerp(ridgeYAt(PEAK_X + 10) + 14, GROUND_Y - 3, t)
+    ]);
+  }
+  document.getElementById('mtGully').setAttribute('d', ptsToPath(roughen(gully, 2.2, 1, rnd)));
+
+  // 斜面の林
+  const mtTrees = document.getElementById('mtTrees');
+  TREE_BANDS.forEach(band => {
+    for (let x = 34 + rnd() * 8; x < 448; x += pick(band.step)) {
+      const ridgeY = ridgeYAt(x);
+      if (ridgeY < band.treeline) continue;          // 森林限界より上には生やさない
+      const baseY = ridgeY + pick(band.off);
+      if (baseY > GROUND_Y - 3) continue;
+      addTree(mtTrees, x, baseY, pick(band.h), pick(band.w), band.fill, band.opacity, rnd);
+    }
+  });
+
+  // 麓・手前の木立
+  const fore = document.getElementById('foreTrees');
+  [[28, 116], [358, 452]].forEach(range => {
+    for (let x = range[0] + rnd() * 6; x < range[1]; x += 13 + rnd() * 11) {
+      addTree(fore, x, 250 + rnd() * 13, 22 + rnd() * 16, 7 + rnd() * 4, '#0c180a', 1, rnd);
+    }
+  });
+
+  // 地面
+  document.getElementById('groundA').setAttribute('d',
+    ptsToPath(roughen([[-10,268],[80,265],[170,269],[260,264],[350,268],[440,265],[490,268]], 2.4, 2, rnd)) + ' L 490,300 L -10,300 Z');
+  document.getElementById('groundB').setAttribute('d',
+    ptsToPath(roughen([[-10,279],[110,276],[230,281],[350,277],[490,280]], 2, 2, rnd)) + ' L 490,300 L -10,300 Z');
+}
+
 
 function hexToRgb(hex) {
   return [
@@ -495,13 +721,10 @@ function formatTime(s) {
 
 function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
 
+// pct=0.5 で山頂、0→0.5 が登り・0.5→1 が下り（対応は従来どおり＝所要時間は不変）
 function getHikerPos(pct) {
-  if (pct <= 0.5) {
-    const t = pct * 2;
-    return { x: lerp(START.x, PEAK.x, t), y: lerp(START.y, PEAK.y, t) };
-  }
-  const t = (pct - 0.5) * 2;
-  return { x: lerp(PEAK.x, END.x, t), y: lerp(PEAK.y, END.y, t) };
+  if (pct <= 0.5) return walkAlong(ASCENT,  ASC_CUM,  ASC_CUM[ASC_CUM.length - 1]   * (pct * 2));
+  return walkAlong(DESCENT, DESC_CUM, DESC_CUM[DESC_CUM.length - 1] * ((pct - 0.5) * 2));
 }
 
 function updateHiker(pct) {
@@ -600,6 +823,11 @@ function applyWeather(pct) {
 
   // 終盤（日暮れ）だけ読みの色が熾火寄りに温まる
   timeDisplay.style.color = pct > 0.70 ? '#e5893a' : '#e9b75f';
+
+  // 沢は雨の間は濁り、晴れると空の色を映す
+  const runoff = clamp((pct - 0.30) / 0.42, 0, 1);
+  riverBody.setAttribute('stroke', lerpColor('#3c4034', '#55839a', runoff));
+  riverGlints.forEach(g => g.setAttribute('opacity', (0.22 + runoff * 0.5).toFixed(2)));
 }
 
 const CROW_START = 0.9;
@@ -755,6 +983,7 @@ secSel.addEventListener('change', () => {
   initTimer();
 });
 
+buildScene();
 createRain();
 animateRain();
 document.querySelector('.preset-btn[data-min="10"]').classList.add('active');
