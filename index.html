@@ -6,92 +6,213 @@
 <title>Mountain Timer</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⛰️</text></svg>">
 <style>
+  :root {
+    --ink:        #151a13;
+    --ink-deep:   #0b0e0a;
+    --paper:      #e7dfcb;
+    --paper-edge: #c9bea3;
+    --wood:       #3d3225;
+    --wood-lit:   #4f4132;
+    --wood-dark:  #241d15;
+    --amber:      #d99a2c;
+    --ember:      #b9561f;
+    --moss:       #76854f;
+    --text:       #ded6c2;
+    --text-dim:   #8c8574;
+  }
+
   * { box-sizing: border-box; margin: 0; padding: 0; }
+
   body {
-    background: #0d1117;
-    color: white;
-    font-family: 'Segoe UI', sans-serif;
+    min-height: 100vh;
+    padding: 32px 20px 44px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: 100vh;
-    gap: 16px;
-    padding: 20px;
+    background:
+      radial-gradient(120% 90% at 50% 0%, #1d2419 0%, var(--ink) 42%, var(--ink-deep) 100%);
+    color: var(--text);
+    font-family: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
   }
 
+  /* 紙目 — 地にごく薄い粒状感を重ねる */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.16;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  .masthead {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 22px;
+  }
+  .masthead .peak { font-size: 15px; line-height: 1; }
+  .masthead h1 {
+    font-family: 'Hiragino Mincho ProN', 'Yu Mincho', 'Noto Serif JP', serif;
+    font-size: 15px;
+    font-weight: 400;
+    letter-spacing: 0.42em;
+    text-indent: 0.42em;
+    color: var(--text-dim);
+  }
+
+  /* 写真マウント — 生成りのマットに貼ったプリント */
+  .mount {
+    background: linear-gradient(175deg, var(--paper) 0%, #ded4bc 100%);
+    padding: 13px 13px 21px;
+    border: 1px solid var(--paper-edge);
+    border-radius: 3px;
+    box-shadow:
+      0 18px 34px -18px rgba(0, 0, 0, 0.85),
+      0 1px 0 rgba(255, 255, 255, 0.18) inset;
+    max-width: 100%;
+  }
   #scene {
     width: 520px;
     max-width: 100%;
-    border-radius: 16px;
-    overflow: hidden;
     display: block;
+    border-radius: 2px;
+    box-shadow: 0 0 0 1px rgba(40, 32, 20, 0.35);
   }
 
+  /* 計器読み */
+  .readout {
+    margin: 26px 0 4px;
+    width: 100%;
+    max-width: 546px;
+    text-align: center;
+  }
   #timeDisplay {
-    font-size: 52px;
-    font-weight: 700;
-    font-family: 'Courier New', monospace;
-    background: linear-gradient(135deg, #f59e0b, #ef4444);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    letter-spacing: 4px;
+    font-family: ui-monospace, 'SF Mono', Menlo, 'Courier New', monospace;
+    font-variant-numeric: tabular-nums;
+    font-size: clamp(44px, 13vw, 62px);
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-indent: 0.15em;
+    color: #e9b75f;
+    text-shadow: 0 0 26px rgba(233, 183, 95, 0.15);
+    line-height: 1.1;
+  }
+  /* 刻み目盛り（装飾） */
+  .scale {
+    height: 11px;
+    margin-top: 8px;
+    background-image:
+      repeating-linear-gradient(90deg, rgba(140, 133, 116, 0.75) 0 1px, transparent 1px 9px),
+      repeating-linear-gradient(90deg, rgba(217, 154, 44, 0.55) 0 1px, transparent 1px 45px);
+    background-size: 100% 5px, 100% 11px;
+    background-position: center bottom, center bottom;
+    background-repeat: repeat-x;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent);
   }
 
+  /* 木札タブ */
   .presets {
     display: flex;
-    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 7px;
+    margin-top: 24px;
   }
   .preset-btn {
-    padding: 6px 16px;
-    background: #1e2a3a;
-    color: #94a3b8;
-    border: 1px solid #2d3748;
-    border-radius: 6px;
+    padding: 7px 17px;
+    background: linear-gradient(180deg, var(--wood-lit), var(--wood));
+    color: #bdb39c;
+    border: 1px solid var(--wood-dark);
+    border-radius: 3px;
+    font: inherit;
     font-size: 13px;
+    letter-spacing: 0.04em;
     cursor: pointer;
-    transition: all 0.15s;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.07) inset;
+    transition: color 0.15s, background 0.15s;
   }
-  .preset-btn:hover { background: #2d3748; color: white; }
-  .preset-btn.active { background: #f59e0b; color: #0d1117; border-color: #f59e0b; font-weight: 700; }
+  .preset-btn:hover { color: var(--paper); background: linear-gradient(180deg, #5b4b39, #3f3427); }
+  .preset-btn.active {
+    background: linear-gradient(180deg, var(--amber), #b97f1e);
+    color: #221a09;
+    border-color: #8c6115;
+    font-weight: 700;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.28) inset;
+  }
 
   .controls {
     display: flex;
-    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
     align-items: center;
+    gap: 10px;
+    margin-top: 16px;
   }
   select {
-    background: #161b22;
-    color: #94a3b8;
-    border: 1px solid #2d3748;
-    border-radius: 6px;
-    padding: 8px 12px;
+    appearance: none;
+    -webkit-appearance: none;
+    padding: 9px 30px 9px 13px;
+    background-color: rgba(61, 50, 37, 0.55);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%238c8574' stroke-width='1.4'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 11px center;
+    color: var(--text);
+    border: 1px solid var(--wood-dark);
+    border-radius: 3px;
+    font: inherit;
     font-size: 14px;
+    cursor: pointer;
   }
   button {
-    padding: 10px 24px;
-    border: none;
-    border-radius: 8px;
-    font-size: 15px;
-    font-weight: 600;
+    font: inherit;
     cursor: pointer;
-    transition: all 0.2s;
+  }
+  #startBtn, #resetBtn {
+    padding: 10px 26px;
+    border-radius: 3px;
+    font-size: 15px;
+    letter-spacing: 0.06em;
+    transition: filter 0.15s, background 0.15s;
   }
   #startBtn {
-    background: linear-gradient(135deg, #f59e0b, #ef4444);
-    color: white;
+    background: linear-gradient(180deg, #d4822a, var(--ember));
+    color: #fdf3e2;
+    border: 1px solid #8c3f13;
+    font-weight: 700;
+    box-shadow: 0 1px 0 rgba(255, 224, 180, 0.3) inset;
   }
-  #startBtn:hover { opacity: 0.85; }
+  #startBtn:hover { filter: brightness(1.1); }
   #resetBtn {
-    background: #1e2a3a;
-    color: #94a3b8;
-    border: 1px solid #2d3748;
+    background: transparent;
+    color: var(--text-dim);
+    border: 1px solid var(--wood-lit);
   }
-  #resetBtn:hover { background: #2d3748; }
+  #resetBtn:hover { background: rgba(78, 65, 50, 0.4); color: var(--text); }
+
+  :focus-visible {
+    outline: 2px solid var(--moss);
+    outline-offset: 3px;
+  }
+
+  @media (max-width: 480px) {
+    body { padding: 20px 14px 32px; }
+    .mount { padding: 9px 9px 15px; }
+    .masthead h1 { font-size: 13px; letter-spacing: 0.3em; text-indent: 0.3em; }
+  }
 </style>
 </head>
 <body>
 
+<header class="masthead">
+  <span class="peak">⛰</span>
+  <h1>MOUNTAIN TIMER</h1>
+</header>
+
+<figure class="mount">
 <svg id="scene" viewBox="0 0 480 300" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
@@ -253,8 +374,12 @@
   <rect x="48" y="288" width="384" height="4" rx="2" fill="#1e293b"/>
   <rect id="svgProgress" x="48" y="288" width="0" height="4" rx="2" fill="#f59e0b"/>
 </svg>
+</figure>
 
-<div id="timeDisplay">00:00</div>
+<div class="readout">
+  <div id="timeDisplay">00:00</div>
+  <div class="scale" aria-hidden="true"></div>
+</div>
 
 <div class="presets">
   <button class="preset-btn" data-min="10" data-sec="0">10分</button>
@@ -271,8 +396,8 @@
     <option value="30">30秒</option>
     <option value="45">45秒</option>
   </select>
-  <button id="startBtn">▶ スタート</button>
-  <button id="resetBtn">↺ リセット</button>
+  <button id="startBtn">▶ 出発</button>
+  <button id="resetBtn">↺ 戻す</button>
 </div>
 
 <script>
@@ -473,15 +598,8 @@ function applyWeather(pct) {
 
   currentRainDensity = kfLerp(KF_RAIN, pct);
 
-  if (pct > 0.70) {
-    timeDisplay.style.background = 'linear-gradient(135deg, #fb923c, #ef4444)';
-  } else if (pct > 0.28) {
-    timeDisplay.style.background = 'linear-gradient(135deg, #fbbf24, #38bdf8)';
-  } else {
-    timeDisplay.style.background = 'linear-gradient(135deg, #f59e0b, #ef4444)';
-  }
-  timeDisplay.style.webkitBackgroundClip = 'text';
-  timeDisplay.style.webkitTextFillColor  = 'transparent';
+  // 終盤（日暮れ）だけ読みの色が熾火寄りに温まる
+  timeDisplay.style.color = pct > 0.70 ? '#e5893a' : '#e9b75f';
 }
 
 const CROW_START = 0.9;
@@ -577,7 +695,7 @@ function tick() {
   if (remaining <= 0) {
     clearInterval(interval);
     interval = null;
-    startBtn.textContent = '▶ スタート';
+    startBtn.textContent = '▶ 出発';
     playBeep();
   }
 }
@@ -601,17 +719,17 @@ startBtn.addEventListener('click', () => {
   if (interval) {
     clearInterval(interval);
     interval = null;
-    startBtn.textContent = '▶ スタート';
+    startBtn.textContent = '▶ 出発';
     return;
   }
   if (remaining <= 0) initTimer();
   interval = setInterval(tick, 1000);
-  startBtn.textContent = '⏸ 一時停止';
+  startBtn.textContent = '⏸ 一息';
 });
 
 resetBtn.addEventListener('click', () => {
   if (interval) { clearInterval(interval); interval = null; }
-  startBtn.textContent = '▶ スタート';
+  startBtn.textContent = '▶ 出発';
   initTimer();
 });
 
@@ -621,19 +739,19 @@ document.querySelectorAll('.preset-btn').forEach(btn => {
     btn.classList.add('active');
     minSel.value = btn.dataset.min;
     secSel.value = btn.dataset.sec;
-    if (interval) { clearInterval(interval); interval = null; startBtn.textContent = '▶ スタート'; }
+    if (interval) { clearInterval(interval); interval = null; startBtn.textContent = '▶ 出発'; }
     initTimer();
   });
 });
 
 minSel.addEventListener('change', () => {
   document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
-  if (interval) { clearInterval(interval); interval = null; startBtn.textContent = '▶ スタート'; }
+  if (interval) { clearInterval(interval); interval = null; startBtn.textContent = '▶ 出発'; }
   initTimer();
 });
 secSel.addEventListener('change', () => {
   document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
-  if (interval) { clearInterval(interval); interval = null; startBtn.textContent = '▶ スタート'; }
+  if (interval) { clearInterval(interval); interval = null; startBtn.textContent = '▶ 出発'; }
   initTimer();
 });
 
